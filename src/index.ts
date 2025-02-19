@@ -22,9 +22,9 @@ bot.command("getUpdates", async (ctx) => {
 
 async function dailyUpdate(userId: number) {
   const updates = await getLatestNews();
-  for (let update of updates) {
-    await bot.api.sendMessage(userId, update, {parse_mode: 'MarkdownV2'});
-  }
+  // for (let update of updates[0]) {
+    await bot.api.sendMessage(userId, updates[0], {parse_mode: 'MarkdownV2'});
+  // }
 }
 
 bot.catch((err) => {
