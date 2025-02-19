@@ -22,10 +22,8 @@ bot.command("getUpdates", async (ctx) => {
 
 async function dailyUpdate(userId: number) {
   const updates = await getLatestNews();
-  for (let i = 0; i < updates.length; i += 5) {
-    const batch = updates.slice(i, i + 5).join('\n\n');
-    console.log(`This is batch ${i+1}\n`,batch);
-    await bot.api.sendMessage(userId, batch, {parse_mode: 'MarkdownV2'});
+  for (let update of updates) {
+    await bot.api.sendMessage(userId, update, {parse_mode: 'MarkdownV2'});
   }
 }
 

@@ -13,9 +13,9 @@ export async function getLatestNews() {
     let excerpt = postDiv.querySelector(".post-excerpt")?.innerText.trim();
     excerpt = he.decode(excerpt!).replace(/-/g, "\\-").replace(/\./g, "\\.").replace(/#/g,'\\#');
 
-    let link = '';
+    const link = postDiv.querySelector(".post-title > a")?.getAttribute('href');
     const postDate = postDiv.querySelector(".post-date")?.innerText.trim();
-    return `*${title}*\n${excerpt}\n_${postDate}_`;
+    return `[${title}](${link})\n${excerpt}\n_${postDate}_`;
   });
   return postJSON;
 }
