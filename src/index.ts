@@ -1,9 +1,16 @@
-import { Bot, GrammyError, HttpError } from "grammy";
+import { Bot, Context, GrammyError, HttpError } from "grammy";
 import { db } from "./db.js";
 import { getLatestNews } from "./news.js";
 import { User } from "grammy/types";
+import {
+  Conversation,
+  type ConversationFlavor,
+  conversations,
+  createConversation,
+} from "@grammyjs/conversations";
 
-const bot = new Bot(process.env.BOT_TOKEN!);
+const bot = new Bot<ConversationFlavor<Context>>(process.env.BOT_TOKEN!);
+bot.use(conversations());
 const SEND_LIMIT = 5;
 
 bot.command("start", async (ctx) => {
@@ -18,36 +25,30 @@ bot.command("start", async (ctx) => {
   );
 });
 
-bot.command("setlimit", async (ctx) => {
-  const message = await bot.api.sendMessage(
-    ctx.from!.id,
-    "Reply to this message with the number of messages you want to be sent (Max. 20)"
+async function setLimit(conversation: Conversation, ctx: Context) {
+  await ctx.reply(
+    "Respond with the number of messages you want to be sent (Max. 20)"
   );
-  const message_id = message.message_id;
-  bot.on("message", async (ctx) => {
-    if (ctx.message.message_id === message_id) {
-      const text = ctx.message.text;
-      const num = parseInt(text!);
-      if (!num) {
-        await bot.api.sendMessage(
-          ctx.from!.id,
-          "Please try again with a valid input"
-        );
-        return;
-      }
-      const userRef = db.collection("users").doc(ctx.from!.id.toString());
-      await userRef.set(
-        {
-          send_limit: num,
-        },
-        { merge: true }
-      );
-      await bot.api.sendMessage(
-        ctx.from!.id,
-        "Thanks! Your settings have been updated."
-      );
-    }
-  });
+  const { message } = await conversation.waitFor("message:text");
+  const num = parseInt(message.text);
+  if (!num || num > 20) {
+    await ctx.reply("Please a valid number.");
+  }
+
+  const userRef = db.collection("users").doc(ctx.from?.id.toString()!);
+  await userRef.set(
+    {
+      send_limit: num,
+    },
+    { merge: true }
+  );
+  ctx.reply("Your settings have been updated");
+}
+
+bot.use(createConversation(setLimit));
+
+bot.command("setlimit", async (ctx) => {
+  await ctx.conversation.enter("setLimit");
 });
 
 bot.command("getupdates", async (ctx) => {
@@ -72,10 +73,11 @@ async function registerUser(user: User) {
   return userDoc;
 }
 //rework this !
-// setInterval(async () => {
-//   let news = await getLatestNews();
-//   await pushNewsUpdates(news);
-// }, 6 * 60 * 60);
+setInterval(async () => {
+  let news = await getLatestNews();
+  await pushNewsUpdates(news);
+  console.log('Sent global update');
+}, 12 * 60 * 60 * 1000);
 
 async function pushNewsUpdates(news: string[]) {
   const users = await db.collection("users").get();

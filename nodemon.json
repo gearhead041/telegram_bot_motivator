@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "ts",
   "ignore": ["node_modules"],
-  "exec": "npx tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm/transpile-only --env-file=.env src/index.ts"
+  "exec": "npx tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm/transpile-only --env-file-if-exists=.env src/index.ts"
 }
