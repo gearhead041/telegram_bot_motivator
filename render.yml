@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: news-bot
+    runtime: node
+    plan: free  # Change to "starter" or "standard" for more resources
+    region: oregon  # Change to your preferred region
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    branch: main
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BOT_TOKEN
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false  # Use Render's dashboard to set this value securely
+    autoDeploy: true  # Set to false if you want to manually deploy
