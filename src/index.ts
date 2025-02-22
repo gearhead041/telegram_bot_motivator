@@ -27,10 +27,10 @@ bot.command("start", async (ctx) => {
 
 async function setLimit(conversation: Conversation, ctx: Context) {
   const userRef = db.collection("users").doc(ctx.from?.id.toString()!);
-  const user:any = await userRef.get();
+  const user = await userRef.get();
   await ctx.reply(
     `Respond with the number of messages you want to be sent (Max. 20)\n
-    Current limit is ${user.send_limit}`
+    Current limit is ${user.data()!.send_limit}`
   );
   const { message } = await conversation.waitFor("message:text");
   const num = parseInt(message.text);
