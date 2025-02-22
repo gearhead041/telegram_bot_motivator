@@ -1,6 +1,6 @@
 import { Bot, Context, GrammyError, HttpError } from "grammy";
 import { db } from "./db.js";
-import { getLatestNews } from "./news.js";
+import { getLatestNews, getTopStories } from "./news.js";
 import { User } from "grammy/types";
 import {
   Conversation,
@@ -9,9 +9,9 @@ import {
   createConversation,
 } from "@grammyjs/conversations";
 
+const SEND_LIMIT = 5;
 const bot = new Bot<ConversationFlavor<Context>>(process.env.BOT_TOKEN!);
 bot.use(conversations());
-const SEND_LIMIT = 5;
 
 bot.command("start", async (ctx) => {
   const user = ctx.message?.from!;
@@ -45,6 +45,7 @@ async function setLimit(conversation: Conversation, ctx: Context) {
     { merge: true }
   );
   ctx.reply("Your settings have been updated");
+  console.log(`Updated settings for ${ctx.from?.id}`);
 }
 
 bot.use(createConversation(setLimit));
@@ -62,6 +63,19 @@ bot.command("getupdates", async (ctx) => {
       parse_mode: "MarkdownV2",
     });
   }
+  console.log(`Sent instant updates to ${ctx.from!.id}`);
+});
+
+bot.command("topstories", async (ctx) => {
+  let dbUser = await db.collection("users").doc(ctx.from!.id.toString()).get();
+  const news = await getTopStories();
+  
+  for (let i = 0; i < dbUser.data()!.send_limit; i++) {
+    await bot.api.sendMessage(ctx.from!.id, news[i], {
+      parse_mode: "MarkdownV2",
+    });
+  }
+  console.log(`Sent top stories to ${ctx.from!.id}`)
 });
 
 async function registerUser(user: User) {
@@ -72,23 +86,25 @@ async function registerUser(user: User) {
     send_limit: SEND_LIMIT,
   });
 
+  console.log(`registerd ${user.id}`);
+
   return userDoc;
 }
 //rework this !
 setInterval(async () => {
   let news = await getLatestNews();
   await pushNewsUpdates(news);
-  console.log('Sent global update');
+  console.log("Sent global update");
 }, 12 * 60 * 60 * 1000);
 
 async function pushNewsUpdates(news: string[]) {
   const users = await db.collection("users").get();
-  users.forEach(async (user: any) => {
+  users.forEach(async (user) => {
     await bot.api.sendMessage(
       user.id,
       "Hello and good day here's the latest news!! 🗞️"
     );
-    for (let i = 0; i < user.send_limit; i++) {
+    for (let i = 0; i < user.data().send_limit; i++) {
       await bot.api.sendMessage(user.id, news[i], {
         parse_mode: "MarkdownV2",
       });
