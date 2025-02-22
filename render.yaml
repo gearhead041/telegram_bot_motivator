@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: worker
     name: news-bot
     runtime: node
     plan: free  # Change to "starter" or "standard" for more resources
