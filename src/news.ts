@@ -1,4 +1,5 @@
 import { parse } from "node-html-parser";
+
 import he from "he";
 
 export async function getLatestNews() {
@@ -23,8 +24,4 @@ export async function getLatestNews() {
 }
 
 const formatString = (text: string) =>
-  he
-    .decode(text)
-    .replace(/-/g, "\\-")
-    .replace(/\./g, "\\.")
-    .replace(/#/g, "\\#");
+  he.decode(text).replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");

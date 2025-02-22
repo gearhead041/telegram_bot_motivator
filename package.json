@@ -9,7 +9,8 @@
   "scripts": {
     "start": "tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm/transpile-only --env-file-if-exists=.env src/index.ts",
     "dev": "nodemon",
-    "serve": "node dist/index.js"
+    "serve": "node --env-file-if-exists=.env dist/index.js",
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/he": "^1.2.3",
