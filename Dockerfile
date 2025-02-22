@@ -1,14 +1,21 @@
 FROM node:22-alpine
 
+# Set the working directory
 WORKDIR /app
 
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-RUN npm install --only=production
-RUN npm run build
+# Install dependencies
+RUN npm install
 
+# Copy the application files
 COPY . .
 
+# Build TypeScript files
+
+# Expose the port the app runs on
 EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
+# Define the command to run the application
+CMD ["npm", "run", "serve"]
