@@ -8,6 +8,7 @@ import {
   conversations,
   createConversation,
 } from "@grammyjs/conversations";
+import cron from "node-cron";
 
 const SEND_LIMIT = 5;
 const bot = new Bot<ConversationFlavor<Context>>(process.env.BOT_TOKEN!);
@@ -90,12 +91,15 @@ async function registerUser(user: User) {
 
   return userDoc;
 }
-//rework this !
-setInterval(async () => {
+
+
+cron.schedule('0 9,21 * * * *', async () => {
   let news = await getLatestNews();
   await pushNewsUpdates(news);
   console.log("Sent global update");
-}, 12 * 60 * 60 * 1000);
+}, {
+  timezone: 'Africa/Lagos'
+});
 
 async function pushNewsUpdates(news: string[]) {
   const users = await db.collection("users").get();
