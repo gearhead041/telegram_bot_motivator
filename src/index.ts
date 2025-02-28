@@ -18,7 +18,7 @@ cron.schedule(
   async () => {
     let news = await getLatestNews();
     await pushNewsUpdates(news);
-    console.log("Sent evening update");
+    console.log("Sent update");
   },
   {
     timezone: "Africa/Lagos",
@@ -41,8 +41,9 @@ async function setLimit(conversation: Conversation, ctx: Context) {
   const userRef = db.collection("users").doc(ctx.from?.id.toString()!);
   const user = await userRef.get();
   await ctx.reply(
-    `Respond with the number of messages you want to be sent (Max. 20)\n
-    Current limit is ${user.data()!.send_limit}`
+    `Respond with the number of messages you want to be sent (Max. 20)\nCurrent limit is ${
+      user.data()!.send_limit
+    }`
   );
   const { message } = await conversation.waitFor("message:text");
   const num = parseInt(message.text);
@@ -102,9 +103,6 @@ async function registerUser(user: User) {
 
   return userDoc;
 }
-
-
-
 
 async function pushNewsUpdates(news: string[]) {
   const users = await db.collection("users").get();

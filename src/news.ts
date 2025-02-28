@@ -39,7 +39,7 @@ async function parseNewsToInstaView(url: string): Promise<string[]> {
 
   return news.map(
     (a) =>
-      `\n\n[*${a.title}*](${a.instaViewLink})\n${a.excerpt}\n_${a.postDate}_\n[Visit Page](${a.link})\n\n`
+      `\n\n[*${a.title}*](${a.instaViewLink})\n${a.excerpt}\n_${formatString(a.postDate)}_\n[Visit Page](${a.link})\n\n`
   );
 }
 const formatString = (text: string) =>
