@@ -34,7 +34,7 @@ cron.schedule(
   {
     timezone: "Africa/Lagos",
   }
-);
+); //could create custom cron jobs for users
 
 bot.command("start", async (ctx) => {
   const user = ctx.message?.from!;
