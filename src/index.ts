@@ -93,15 +93,15 @@ bot.command("topstories", async (ctx) => {
 
 async function registerUser(user: User) {
   const userDoc = db.collection("users").doc(user.id.toString());
-  await userDoc.set({
-    firstname: user.first_name,
-    lastname: user.last_name || "",
-    send_limit: SEND_LIMIT,
-  });
-
-  console.log(`registerd ${user.id}`);
-
-  return userDoc;
+  const userStored = await userDoc.get();
+  if (!userStored.exists) {
+    await userDoc.set({
+      firstname: user.first_name,
+      lastname: user.last_name || "",
+      send_limit: SEND_LIMIT,
+    });
+    console.log(`registerd ${user.id}`);
+  }
 }
 
 async function pushNewsUpdates(news: string[]) {
