@@ -16,8 +16,7 @@ bot.use(conversations());
 cron.schedule(
   "* * 9,21 * * *",
   async () => {
-    let news = await getLatestNews();
-    await pushNewsUpdates(news);
+    await pushNewsUpdates();
     console.log("Sent update");
   },
   {
@@ -104,7 +103,8 @@ async function registerUser(user: User) {
   }
 }
 
-async function pushNewsUpdates(news: string[]) {
+async function pushNewsUpdates() {
+  const news = await getLatestNews();
   const users = await db.collection("users").get();
   users.forEach(async (user) => {
     await bot.api.sendMessage(
