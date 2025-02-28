@@ -13,6 +13,28 @@ import cron from "node-cron";
 const SEND_LIMIT = 5;
 const bot = new Bot<ConversationFlavor<Context>>(process.env.BOT_TOKEN!);
 bot.use(conversations());
+cron.schedule(
+  "0 9 * * * *",
+  async () => {
+    let news = await getLatestNews();
+    await pushNewsUpdates(news);
+    console.log("Sent morning update");
+  },
+  {
+    timezone: "Africa/Lagos",
+  }
+);
+cron.schedule(
+  "0 21 * * * *",
+  async () => {
+    let news = await getLatestNews();
+    await pushNewsUpdates(news);
+    console.log("Sent evening update");
+  },
+  {
+    timezone: "Africa/Lagos",
+  }
+);
 
 bot.command("start", async (ctx) => {
   const user = ctx.message?.from!;
@@ -70,13 +92,13 @@ bot.command("getupdates", async (ctx) => {
 bot.command("topstories", async (ctx) => {
   let dbUser = await db.collection("users").doc(ctx.from!.id.toString()).get();
   const news = await getTopStories();
-  
+
   for (let i = 0; i < dbUser.data()!.send_limit; i++) {
     await bot.api.sendMessage(ctx.from!.id, news[i], {
       parse_mode: "MarkdownV2",
     });
   }
-  console.log(`Sent top stories to ${ctx.from!.id}`)
+  console.log(`Sent top stories to ${ctx.from!.id}`);
 });
 
 async function registerUser(user: User) {
@@ -93,13 +115,7 @@ async function registerUser(user: User) {
 }
 
 
-cron.schedule('0 9,21 * * * *', async () => {
-  let news = await getLatestNews();
-  await pushNewsUpdates(news);
-  console.log("Sent global update");
-}, {
-  timezone: 'Africa/Lagos'
-});
+
 
 async function pushNewsUpdates(news: string[]) {
   const users = await db.collection("users").get();
