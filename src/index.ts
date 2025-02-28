@@ -14,18 +14,7 @@ const SEND_LIMIT = 5;
 const bot = new Bot<ConversationFlavor<Context>>(process.env.BOT_TOKEN!);
 bot.use(conversations());
 cron.schedule(
-  "0 9 * * * *",
-  async () => {
-    let news = await getLatestNews();
-    await pushNewsUpdates(news);
-    console.log("Sent morning update");
-  },
-  {
-    timezone: "Africa/Lagos",
-  }
-);
-cron.schedule(
-  "0 21 * * * *",
+  "* * 9,21 * * *",
   async () => {
     let news = await getLatestNews();
     await pushNewsUpdates(news);
