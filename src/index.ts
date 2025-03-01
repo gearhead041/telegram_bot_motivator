@@ -8,12 +8,11 @@ import {
   conversations,
   createConversation,
 } from "@grammyjs/conversations";
-import cron from "node-cron";
+import { CronJob } from "cron";
 
 const SEND_LIMIT = 5;
 const bot = new Bot<ConversationFlavor<Context>>(process.env.BOT_TOKEN!);
 bot.use(conversations());
-
 
 bot.command("start", async (ctx) => {
   const user = ctx.message?.from!;
@@ -123,15 +122,12 @@ bot.catch((err) => {
   }
 });
 
-cron.schedule(
-  "0 0 9,21 * * *",
-  async () => await pushNewsUpdates()
-  ,
-  {
-    timezone: "Africa/Lagos",
-    scheduled: true
-  }
-); 
-
+const job = new CronJob(
+  "0 9,21 * * *",
+  async () => pushNewsUpdates(),
+  null,
+  true,
+  "Africa/Lagos"
+);
 
 bot.start();
