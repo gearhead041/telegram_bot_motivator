@@ -13,16 +13,7 @@ import cron from "node-cron";
 const SEND_LIMIT = 5;
 const bot = new Bot<ConversationFlavor<Context>>(process.env.BOT_TOKEN!);
 bot.use(conversations());
-cron.schedule(
-  "* * 9,21 * * *",
-  async () => {
-    await pushNewsUpdates();
-    console.log("Sent update");
-  },
-  {
-    timezone: "Africa/Lagos",
-  }
-); //could create custom cron jobs for users
+
 
 bot.command("start", async (ctx) => {
   const user = ctx.message?.from!;
@@ -131,5 +122,16 @@ bot.catch((err) => {
     console.error("Unknown error:", e);
   }
 });
+
+cron.schedule(
+  "* * 9,21 * * *",
+  async () => await pushNewsUpdates()
+  ,
+  {
+    timezone: "Africa/Lagos",
+    scheduled: true
+  }
+); 
+
 
 bot.start();
