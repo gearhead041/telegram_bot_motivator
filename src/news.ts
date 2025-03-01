@@ -60,3 +60,4 @@ export async function getTopStories(): Promise<string[]> {
   const url = "https://punchng.com/topics/top-stories/";
   return await parseNewsToInstaView(url);
 }
+
