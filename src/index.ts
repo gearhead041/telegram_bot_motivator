@@ -112,7 +112,7 @@ bot.catch((err) => {
 });
 
 const job = new CronJob(
-  "* 9,21 * * *",
+  "* 9,18,21 * * *",
   async () => pushNewsUpdates(),
   null,
   true,
