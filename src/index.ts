@@ -26,6 +26,19 @@ bot.command("start", async (ctx) => {
   );
 });
 
+async function registerUser(user: User) {
+  const userDoc = db.collection("users").doc(user.id.toString());
+  const userStored = await userDoc.get();
+  if (!userStored.exists) {
+    await userDoc.set({
+      firstname: user.first_name,
+      lastname: user.last_name || "",
+      send_limit: SEND_LIMIT,
+    });
+    console.log(`registered ${user.id}`);
+  }
+}
+
 async function setLimit(conversation: Conversation, ctx: Context) {
   const userRef = db.collection("users").doc(ctx.from?.id.toString()!);
   const user = await userRef.get();
@@ -68,30 +81,7 @@ bot.command("getupdates", async (ctx) => {
   console.log(`Sent instant updates to ${ctx.from!.id}`);
 });
 
-bot.command("topstories", async (ctx) => {
-  let dbUser = await db.collection("users").doc(ctx.from!.id.toString()).get();
-  const news = await getTopStories();
 
-  for (let i = 0; i < dbUser.data()!.send_limit; i++) {
-    await bot.api.sendMessage(ctx.from!.id, news[i], {
-      parse_mode: "MarkdownV2",
-    });
-  }
-  console.log(`Sent top stories to ${ctx.from!.id}`);
-});
-
-async function registerUser(user: User) {
-  const userDoc = db.collection("users").doc(user.id.toString());
-  const userStored = await userDoc.get();
-  if (!userStored.exists) {
-    await userDoc.set({
-      firstname: user.first_name,
-      lastname: user.last_name || "",
-      send_limit: SEND_LIMIT,
-    });
-    console.log(`registerd ${user.id}`);
-  }
-}
 
 async function pushNewsUpdates() {
   const news = await getLatestNews();
@@ -123,7 +113,7 @@ bot.catch((err) => {
 });
 
 const job = new CronJob(
-  "0 9,21 * * *",
+  "*/2 * * * *",
   async () => pushNewsUpdates(),
   null,
   true,
