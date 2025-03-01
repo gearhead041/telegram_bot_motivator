@@ -43,14 +43,15 @@ async function setLimit(conversation: Conversation, ctx: Context) {
   const userRef = db.collection("users").doc(ctx.from?.id.toString()!);
   const user = await userRef.get();
   await ctx.reply(
-    `Respond with the number of messages you want to be sent (Max. 20)\nCurrent limit is ${
+    `Respond with the number of messages you want to be sent (Max. 25)\nCurrent limit is ${
       user.data()!.send_limit
     }`
   );
   const { message } = await conversation.waitFor("message:text");
   const num = parseInt(message.text);
-  if (!num || num > 20) {
-    await ctx.reply("Please a valid number.");
+  if (!num || num > 25) {
+    await ctx.reply("Please try again with a valid number.");
+    return;
   }
 
   await userRef.set(
@@ -80,8 +81,6 @@ bot.command("getupdates", async (ctx) => {
   }
   console.log(`Sent instant updates to ${ctx.from!.id}`);
 });
-
-
 
 async function pushNewsUpdates() {
   const news = await getLatestNews();
