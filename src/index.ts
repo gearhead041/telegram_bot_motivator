@@ -124,7 +124,7 @@ bot.catch((err) => {
 });
 
 cron.schedule(
-  "* * 9,21 * * *",
+  "0 0 9,21 * * *",
   async () => await pushNewsUpdates()
   ,
   {
