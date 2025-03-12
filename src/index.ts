@@ -10,7 +10,7 @@ import {
 } from "@grammyjs/conversations";
 import { CronJob } from "cron";
 
-const SEND_LIMIT = 5;
+const SEND_LIMIT = 10;
 const bot = new Bot<ConversationFlavor<Context>>(process.env.BOT_TOKEN!);
 bot.use(conversations());
 
@@ -49,7 +49,7 @@ async function setLimit(conversation: Conversation, ctx: Context) {
   );
   const { message } = await conversation.waitFor("message:text");
   const num = parseInt(message.text);
-  if (!num || num > 25) {
+  if (!num || num > SEND_LIMIT) {
     await ctx.reply("Please try again with a valid number.");
     return;
   }
@@ -112,7 +112,7 @@ bot.catch((err) => {
 });
 
 const job = new CronJob(
-  "0 0 9,18,21 * * *",
+  "0 0 9,21 * * *",
   async () => pushNewsUpdates(),
   null,
   true,
